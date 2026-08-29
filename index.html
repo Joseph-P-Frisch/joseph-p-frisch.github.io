@@ -4,97 +4,289 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, minimum-scale=0.1">
-        <title>"Joseph Frisch"</title>
+        <title>Joseph Frisch</title>
         <base href="https://joseph-p-frisch.github.io/" target="_parent">
         <noscript> JavaScript not enabled. </noscript>
         <style>
+            :root {
+                --body-text-color: rgb(51, 51, 51);
+                --body-bg: white;
+                --nav-bg: #4682B4;
+                --nav-hover-bg: #5F9EA0;
+                --active-tab-bg: #5F9EA0;
+                --tab-border: #ccc;
+                --toggle-btn-bg: #4682B4;
+                --toggle-btn-color: white;
+                --font-size-base: 16px; /* Base font size */
+            }
+
+            body.normal-mode {
+                --body-text-color: rgb(51, 51, 51);
+                --body-bg: white;
+                --nav-bg: #4682B4;
+                --nav-hover-bg: #5F9EA0;
+                --active-tab-bg: #5F9EA0;
+                --tab-border: #ccc;
+                --toggle-btn-bg: #4682B4;
+                --toggle-btn-color: white;
+            }
+
+            body.protanopia-mode {
+                --body-text-color: #333333; /* Dark gray */
+                --body-bg: #F0F8FF; /* AliceBlue */
+                --nav-bg: #B0C4DE; /* LightSteelBlue */
+                --nav-hover-bg: #A9A9A9; /* DarkGray */
+                --active-tab-bg: #A9A9A9;
+                --tab-border: #808080; /* Gray */
+                --toggle-btn-bg: #B0C4DE;
+                --toggle-btn-color: #333333;
+            }
+
+            body.deuteranopia-mode {
+                --body-text-color: #333333;
+                --body-bg: #F5F5DC; /* Beige */
+                --nav-bg: #ADD8E6; /* LightBlue */
+                --nav-hover-bg: #B0E0E6; /* PowderBlue */
+                --active-tab-bg: #B0E0E6;
+                --tab-border: #A9A9A9;
+                --toggle-btn-bg: #ADD8E6;
+                --toggle-btn-color: #333333;
+            }
+
+            body.tritanopia-mode {
+                --body-text-color: #333333;
+                --body-bg: #FFF0F5; /* LavenderBlush */
+                --nav-bg: #C6E2FF; /* LightSteelBlue (similar, but distinct from protanopia) */
+                --nav-hover-bg: #9ACD32; /* YellowGreen */
+                --active-tab-bg: #9ACD32;
+                --tab-border: #696969; /* DimGray */
+                --toggle-btn-bg: #C6E2FF;
+                --toggle-btn-color: #333333;
+            }
+
             body{
                 font-family: "Times New Roman", Times, serif;
-                font-size: 16px;
-                color: rgb(51, 51, 51);
+                font-size: var(--font-size-base); /* Use CSS variable for font size */
+                color: var(--body-text-color);
+                background-color: var(--body-bg);
                 margin: 0; /* Remove default body margin */
                 padding: 0; /* Remove default body padding */
             }
-            .tab {
-                overflow: hidden;
-                border: 1px solid #ccc;
-                background-color: #f1f1f1;
+            /* Main container for layout */
+            .container {
+                display: flex;
+                height: 100vh; /* Make container take full viewport height */
             }
-            .tab button {
-                background-color: inherit;
-                float: left;
-                border: none;
-                outline: none;
-                cursor: pointer;
-                padding: 14px 16px;
-                transition: 0.3s;
+            /* Vertical Navigation Bar */
+            .sidenav {
+                height: 100%; /* Full height of its parent (container) */
+                width: 200px; /* Default width */
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Stay on top */
+                top: 0;
+                left: 0;
+                background-color: var(--nav-bg); /* Sapphire blue */
+                overflow-x: hidden; /* Disable horizontal scroll */
+                padding-top: 20px;
+                transition: 0.3s; /* Smooth transition */
+                box-sizing: border-box; /* Include padding in width */
+            }
+            .sidenav a, .sidenav button.tablinks { /* Style tab buttons inside sidenav */
+                padding: 8px 8px 8px 32px;
+                text-decoration: none;
                 font-size: 17px;
+                color: var(--toggle-btn-color);
+                display: block;
+                border: none;
+                background: none;
+                width: 100%;
+                text-align: left;
+                cursor: pointer;
+                transition: 0.3s;
+                box-sizing: border-box; /* Include padding in width */
             }
-            .tab button:hover {
-                background-color: #ddd;
+            .sidenav a:hover, .sidenav button.tablinks:hover {
+                color: #f1f1f1;
+                background-color: var(--nav-hover-bg); /* Lighter blue on hover */
             }
-            .tab button.active {
-                background-color: #ccc;
+            .sidenav button.tablinks.active {
+                background-color: var(--active-tab-bg); /* Active tab color */
             }
+            /* Content area */
+            .content-area {
+                margin-left: 200px; /* Same as the width of the sidenav */
+                padding: 1px 16px;
+                transition: margin-left 0.3s;
+                width: calc(100% - 200px); /* Adjust content width */
+                box-sizing: border-box; /* Include padding in width */
+                overflow-y: auto; /* Allow content to scroll if it overflows vertically */
+            }
+            /* Hidden sidenav */
+            .sidenav.hidden {
+                width: 0;
+                padding-top: 0;
+            }
+            .content-area.nav-hidden {
+                margin-left: 0;
+                width: 100%;
+            }
+            /* Toggle button for nav */
+            .nav-toggle-btn {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                font-size: 20px;
+                cursor: pointer;
+                background-color: var(--toggle-btn-bg);
+                color: var(--toggle-btn-color);
+                border: none;
+                padding: 5px 10px;
+                z-index: 2; /* Above nav bar */
+                border-radius: 3px;
+                transition: left 0.3s;
+            }
+            .nav-toggle-btn.nav-hidden { /* Adjust button position when nav is hidden */
+                left: 10px; /* Keep it on the left */
+            }
+            .nav-toggle-btn.nav-visible { /* Adjust button position when nav is visible */
+                left: 210px; /* Position to the right of the nav bar */
+            }
+            /* Tab content */
             .tabcontent {
                 display: none;
                 padding: 6px 12px;
-                border: 1px solid #ccc;
                 border-top: none;
             }
-            /* Existing styles adjusted for tab content */
-            #SFETBqty{
-                position: relative; /* Changed to relative for flow within tabcontent */
-                top: 0px;
-                left: 0px;
-                width: 40px;
-                height: 30px;
+            /* Existing item styles - simplified for natural flow */
+            #SFETBqty, #SFETBqtybutton, #SFETBremovefromcartbutton,
+            #checkoutbutton, #viewcartbutton, #clearcartbutton {
+                display: inline-block; /* Make them flow inline */
                 margin-right: 5px;
+                margin-bottom: 5px;
             }
-            #SFETBqtybutton{
-                position: relative; /* Changed to relative for flow within tabcontent */
-                top: 0px;
-                left: 0px;
-                width: 65px;
-                height: 36px;
-                margin-right: 5px;
-            }
-            #SFETBremovefromcartbutton{
-                position: relative; /* Changed to relative for flow within tabcontent */
-                top: 0px;
-                left: 0px;
-            }
-            #SFETB{
-                position: relative; /* Changed to relative for flow within tabcontent */
-                top: 0px;
-                left: 0px;
+            #SFETB {
+                display: block;
                 margin-top: 10px;
-                display: block; /* Make it a block element to take full width */
+                margin-bottom: 10px;
             }
-            #checkoutbutton{
-                position: relative; /* Changed to relative for flow within tabcontent */
-                top: 0px;
-                left: 0px;
-                margin-top: 10px;
-                margin-right: 5px;
-            }
-            #viewcartbutton{
-                position:relative; /* Changed to relative for flow within tabcontent */
-                top: 0px;
-                left: 0px;
-                margin-top: 10px;
-                margin-right: 5px;
-            }
-            #clearcartbutton{
-                position:relative; /* Changed to relative for flow within tabcontent */
-                top: 0px;
-                left: 0px;
-                margin-top: 10px;
+            /* Skip to content link */
+            .skip-to-content {
+                position: absolute;
+                left: -999px;
+                top: auto;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                z-index: -999;
+                background-color: #f1f1f1;
+                color: #333;
+                padding: 8px;
             }
 
+            .skip-to-content:focus {
+                left: 50%;
+                top: 5px;
+                width: auto;
+                height: auto;
+                z-index: 1000;
+                transform: translateX(-50%);
+                -webkit-transform: translateX(-50%);
+                -moz-transform: translateX(-50%);
+                -ms-transform: translateX(-50%);
+                -o-transform: translateX(-50%);
+            }
+
+            /* Media Queries for Responsiveness */
+            @media screen and (max-width: 768px) {
+                .sidenav {
+                    width: 0; /* Hidden by default on small screens */
+                    padding-top: 0;
+                }
+                .sidenav.active-mobile-nav { /* When explicitly opened on mobile */
+                    width: 100%;
+                    left: 0; /* Cover the whole screen */
+                }
+                .content-area {
+                    margin-left: 0;
+                    width: 100%;
+                }
+                .nav-toggle-btn {
+                    left: 10px; /* Always on the left on small screens */
+                }
+                .nav-toggle-btn.nav-visible {
+                    left: 10px; /* Ensure it stays on the left even when nav is open (overlay) */
+                }
+                .skip-to-content:focus {
+                    left: 10px;
+                    transform: none;
+                }
+            }
         </style>
+        <script type="text/javascript">
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+            }
+        </script>
     </head>
     <body>
+        <a href="#mainContentArea" class="skip-to-content">Skip to main content</a>
+        <div id="google_translate_element" style="position: fixed; top: 10px; right: 10px; z-index: 1001;"></div>
+
+        <button id="navToggleBtn" class="nav-toggle-btn" onclick="toggleNav()" aria-label="Toggle Navigation">☰</button>
+
+        <div class="container">
+            <div id="mySidenav" class="sidenav" role="tablist" aria-orientation="vertical">
+                <button class="tablinks" onclick="openTab(event, 'Home')" id="defaultOpen" role="tab" aria-controls="Home" aria-selected="true" tabindex="0">Home</button>
+                <button class="tablinks" onclick="openTab(event, 'Projects')" id="projectsTab" role="tab" aria-controls="Projects" aria-selected="false" tabindex="-1">Projects</button>
+                <button class="tablinks" onclick="openTab(event, 'Settings')" id="settingsTab" role="tab" aria-controls="Settings" aria-selected="false" tabindex="-1">Settings</button>
+                <button class="tablinks" onclick="openTab(event, 'About')" id="aboutTab" role="tab" aria-controls="About" aria-selected="false" tabindex="-1">About</button>
+            </div>
+
+            <div id="mainContentArea" class="content-area">
+                <div id="Home" class="tabcontent" role="tabpanel" aria-labelledby="defaultOpen" aria-hidden="false">
+                    <!-- No content requested -->
+                </div>
+
+                <div id="Projects" class="tabcontent" role="tabpanel" aria-labelledby="projectsTab" aria-hidden="true">
+                    <input type="number" id="SFETBqty" min="0" aria-label="Quantity for Shining Fates Elite Trainer Box">
+                    <button type="button" id="SFETBqtybutton" onclick="addtocart(SFETB.price, SFETB.title, 'SFETBqty')">Add SFETB</button>
+                    <button id="SFETBremovefromcartbutton" onclick="removefromcart(SFETB.price, SFETB.title, 'SFETBqty')"> Remove SFETB</button>
+
+                    <!-- Add image link here later -->
+                    <!-- <img src="https://www.kasandbox.org/programming-images/space/collisioncircle.png" alt="Placeholder Image" id="SFETB" style="width:50px; Height:50px;"> -->
+
+                    <button id="checkoutbutton" onclick="carttotal(totalprice)">Check out Button</button>
+
+                    <button id="viewcartbutton" onclick="viewcart(totalprice, shoppingcart)">View Cart</button>
+                    <button id="clearcartbutton" onclick="clearcart()"> clear cart</button>
+                </div>
+
+                <div id="Settings" class="tabcontent" role="tabpanel" aria-labelledby="settingsTab" aria-hidden="true">
+                    <h3>Accessibility Settings</h3>
+                    <h4>Theme (Colorblindness modes):</h4>
+                    <button onclick="setTheme('normal-mode')">Normal</button>
+                    <button onclick="setTheme('protanopia-mode')">Protanopia</button>
+                    <button onclick="setTheme('deuteranopia-mode')">Deuteranopia</button>
+                    <button onclick="setTheme('tritanopia-mode')">Tritanopia</button>
+
+                    <h4>Font Size:</h4>
+                    <button onclick="setFontSize('small')">Small</button>
+                    <button onclick="setFontSize('medium')">Medium</button>
+                    <button onclick="setFontSize('large')">Large</button>
+
+                    <h4>Text-to-Speech:</h4>
+                    <button onclick="readActiveTabContent()">Read Page Content</button>
+                    <button onclick="stopSpeech()">Stop Reading</button>
+                </div>
+
+                <div id="About" class="tabcontent" role="tabpanel" aria-labelledby="aboutTab" aria-hidden="true">
+                    <!-- No content requested -->
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
         <script>
         //this is a note
         /*
@@ -104,7 +296,6 @@
             var totalprice = [];
             var shoppingcart = [];
             var sum = 0;
-            // var i = 0; // i is now used in for loops, no need for global var
     //////////////////objects///////////////////
             SFETB = {
                 title: "Shining Fates Elite Trainer Box",
@@ -129,20 +320,20 @@
                 alert("Total: " + sum.toFixed(2)); // Display formatted total
                 console.log(sum);};
             ///////////////////////////////////
-            
-            var addtocart = function(price, title, inventory_val, id){
+
+            var addtocart = function(price, title, id){
                 var qty_str = document.getElementById(id.toString()).value;
                 var qty = parseInt(qty_str, 10); // Convert quantity to integer
-                
+
                 console.log("qty", qty);
-                
+
                 // Check if the requested quantity exceeds available inventory
                 if(qty > 0 && SFETB.inventory >= qty){ // Use SFETB.inventory directly
                     for(var z = 1; z <= qty; z++){
                         shoppingcart.push(title);
                         totalprice.push(price);
                     }
-                    SFETB.inventory -= qty; 
+                    SFETB.inventory -= qty;
                 } else if (qty <= 0) {
                     console.log("Please enter a quantity greater than zero.");
                 } else {
@@ -151,40 +342,40 @@
                 console.log("Current inventory for SFETB: " + SFETB.inventory); // Log updated inventory
                 console.log(totalprice, shoppingcart);
             };
-            
+
             ///////////////////////////////////////////////////
-            
+
             var viewcart = function(totalprice_arr, shoppingcart_arr){ // Renamed parameters
                 console.log("Items in cart:", shoppingcart_arr);
                 console.log("Prices in cart:", totalprice_arr);
             };
-            
+
             //////////////improve clear cart/do not return value popped?//////////
-            
+
             var clearcart = function(){
                 totalprice.length = 0;
                 shoppingcart.length = 0;
                 console.log("Cart cleared. Total price: ", totalprice, " Shopping cart: ", shoppingcart);
                 SFETB.inventory = 10; // Reset inventory when cart is cleared
             };
-            
+
             var removefromcart = function(price, title, id){
-                    
+
                 var qty_str = document.getElementById(id.toString()).value;
                 var qty_to_remove = parseInt(qty_str, 10); // Convert quantity to integer
-                
+
                 console.log("qty to remove", qty_to_remove);
-                
+
                 if (qty_to_remove > 0) {
                     for(var x = 0; x < qty_to_remove; x++){
-                        
+
                         var i = totalprice.indexOf(price);
                         var j = shoppingcart.indexOf(title);
-                        
+
                         if (i > -1 && j > -1){
                             totalprice.splice(i, 1);
                             shoppingcart.splice(j, 1);
-                            SFETB.inventory++; 
+                            SFETB.inventory++;
                         } else {
                             console.log("Item not found in cart: " + title);
                             break; // Stop trying to remove if item not found
@@ -203,55 +394,179 @@
                 tabcontent = document.getElementsByClassName("tabcontent");
                 for (i = 0; i < tabcontent.length; i++) {
                     tabcontent[i].style.display = "none";
+                    tabcontent[i].setAttribute("aria-hidden", "true");
                 }
                 tablinks = document.getElementsByClassName("tablinks");
                 for (i = 0; i < tablinks.length; i++) {
                     tablinks[i].className = tablinks[i].className.replace(" active", "");
+                    tablinks[i].setAttribute("aria-selected", "false");
+                    tablinks[i].setAttribute("tabindex", "-1"); // Make inactive tabs not focusable by default
                 }
                 document.getElementById(tabName).style.display = "block";
+                document.getElementById(tabName).setAttribute("aria-hidden", "false");
                 evt.currentTarget.className += " active";
+                evt.currentTarget.setAttribute("aria-selected", "true");
+                evt.currentTarget.setAttribute("tabindex", "0"); // Make active tab focusable
+
+                // Close nav on mobile after tab selection
+                if (window.innerWidth <= 768) {
+                    toggleNav(); // This will hide the nav if it's open
+                }
             }
 
-            // Set default tab to open on load
+            function toggleNav() {
+                var sidenav = document.getElementById("mySidenav");
+                var contentArea = document.getElementById("mainContentArea");
+                var navToggleBtn = document.getElementById("navToggleBtn");
+
+                if (sidenav.classList.contains('hidden')) {
+                    sidenav.classList.remove('hidden');
+                    sidenav.classList.add('active-mobile-nav'); // Add class for mobile display
+                    contentArea.classList.remove('nav-hidden');
+                    navToggleBtn.classList.remove('nav-hidden');
+                    navToggleBtn.classList.add('nav-visible');
+                } else {
+                    sidenav.classList.add('hidden');
+                    sidenav.classList.remove('active-mobile-nav'); // Remove class for mobile display
+                    contentArea.classList.add('nav-hidden');
+                    navToggleBtn.classList.add('nav-hidden');
+                    navToggleBtn.classList.remove('nav-visible');
+                }
+            }
+
+            // Accessibility functions
+            function setTheme(themeName) {
+                document.body.className = ''; // Clear existing theme classes
+                document.body.classList.add(themeName);
+                localStorage.setItem('selectedTheme', themeName);
+            }
+
+            function setFontSize(size) {
+                let root = document.documentElement; // Get the root element for CSS variables
+                switch(size) {
+                    case 'small':
+                        root.style.setProperty('--font-size-base', '14px');
+                        break;
+                    case 'medium':
+                        root.style.setProperty('--font-size-base', '16px');
+                        break;
+                    case 'large':
+                        root.style.setProperty('--font-size-base', '20px');
+                        break;
+                }
+                localStorage.setItem('selectedFontSize', size);
+            }
+
+            let currentSpeech = null; // To keep track of current speech utterance
+
+            function readActiveTabContent() {
+                if (currentSpeech) {
+                    stopSpeech();
+                }
+
+                const activeTabContent = document.querySelector('.tabcontent[aria-hidden="false"]');
+                if (activeTabContent) {
+                    // Extract visible text content, excluding script tags and hidden elements
+                    let textToRead = '';
+                    const nodes = activeTabContent.childNodes;
+                    nodes.forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            textToRead += node.textContent + ' ';
+                        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'SCRIPT' && node.style.display !== 'none' && node.style.visibility !== 'hidden') {
+                            // For elements, get accessible text, prioritizing aria-label or alt text
+                            if (node.getAttribute('aria-label')) {
+                                textToRead += node.getAttribute('aria-label') + ' ';
+                            } else if (node.tagName === 'IMG' && node.alt) {
+                                textToRead += node.alt + ' ';
+                            } else {
+                                textToRead += node.innerText + ' ';
+                            }
+                        }
+                    });
+
+                    textToRead = textToRead.trim();
+
+                    if (textToRead) {
+                        currentSpeech = new SpeechSynthesisUtterance(textToRead);
+                        currentSpeech.lang = document.documentElement.lang || 'en-US'; // Use document language or default
+                        window.speechSynthesis.speak(currentSpeech);
+                    } else {
+                        console.log('No readable content found in the active tab.');
+                    }
+                }
+            }
+
+            function stopSpeech() {
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                currentSpeech = null;
+            }
+
+            // Set default tab to open on load and apply saved preferences
             document.addEventListener('DOMContentLoaded', (event) => {
                 document.getElementById("defaultOpen").click();
+                // Initialize nav button position based on default nav state
+                document.getElementById("navToggleBtn").classList.add('nav-visible');
+
+                // Hide nav by default on small screens
+                if (window.innerWidth <= 768) {
+                    document.getElementById("mySidenav").classList.add('hidden');
+                    document.getElementById("mainContentArea").classList.add('nav-hidden');
+                    document.getElementById("navToggleBtn").classList.add('nav-hidden');
+                    document.getElementById("navToggleBtn").classList.remove('nav-visible');
+                }
+
+                // Apply saved theme and font size
+                const savedTheme = localStorage.getItem('selectedTheme');
+                if (savedTheme) {
+                    setTheme(savedTheme);
+                } else {
+                    setTheme('normal-mode'); // Default theme
+                }
+
+                const savedFontSize = localStorage.getItem('selectedFontSize');
+                if (savedFontSize) {
+                    setFontSize(savedFontSize);
+                } else {
+                    setFontSize('medium'); // Default font size
+                }
+
+                // Keyboard navigation for tabs
+                const sidenav = document.getElementById("mySidenav");
+                sidenav.addEventListener('keydown', function(e) {
+                    const tablinks = Array.from(sidenav.querySelectorAll('.tablinks[tabindex="0"]')); // Get currently focused tab
+                    if (tablinks.length === 0) return;
+                    const activeTab = tablinks[0]; // Assuming only one tab can be tabindex=0 at a time
+
+                    const allTablinks = Array.from(sidenav.querySelectorAll('.tablinks'));
+                    const currentIndex = allTablinks.indexOf(activeTab);
+                    let nextTabIndex;
+
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                        e.preventDefault(); // Prevent page scrolling
+                        nextTabIndex = (currentIndex + 1) % allTablinks.length;
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault(); // Prevent page scrolling
+                        nextTabIndex = (currentIndex - 1 + allTablinks.length) % allTablinks.length;
+                    } else if (e.key === 'Home') { // Go to first tab
+                        e.preventDefault();
+                        nextTabIndex = 0;
+                    } else if (e.key === 'End') { // Go to last tab
+                        e.preventDefault();
+                        nextTabIndex = allTablinks.length - 1;
+                    }
+
+                    if (nextTabIndex !== undefined && nextTabIndex !== currentIndex) {
+                        allTablinks[nextTabIndex].focus(); // Move focus to the next tab
+                        // No need to click, as focus alone should handle the visual indication for screen readers
+                        // And the openTab function is triggered by click for visual activation.
+                        // If we want arrow keys to *also* switch content immediately, uncomment the line below:
+                        // allTablinks[nextTabIndex].click();
+                    }
+                });
             });
 
         </script>
-
-        <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'Home')" id="defaultOpen">Home</button>
-            <button class="tablinks" onclick="openTab(event, 'ShoppingCart')">Shopping Cart</button>
-            <button class="tablinks" onclick="openTab(event, 'About')">About</button>
-        </div>
-
-        <div id="Home" class="tabcontent">
-            <h3>Home</h3>
-            <p>Welcome to the store! Browse our products.</p>
-            <!-- Product display could go here -->
-        </div>
-
-        <div id="ShoppingCart" class="tabcontent">
-            <h3>Shopping Cart</h3>
-            <p>Manage your items.</p>
-
-            <input type="number" id="SFETBqty" min="0">
-            <button type="button" id="SFETBqtybutton" onclick="addtocart(SFETB.price, SFETB.title, SFETB.inventory, 'SFETBqty')">Add SFETB</button>
-            <button id="SFETBremovefromcartbutton" onclick="removefromcart(SFETB.price, SFETB.title, 'SFETBqty')"> Remove SFETB</button>
-
-            <img src="https://www.kasandbox.org/programming-images/space/collisioncircle.png" id="SFETB" style="width:50px; Height:50px;">    
-            
-            <button id="checkoutbutton" onclick="carttotal(totalprice)">Check out Button</button>
-            
-            <button id="viewcartbutton" onclick="viewcart(totalprice, shoppingcart)">View Cart</button>
-            
-            <button id="clearcartbutton" onclick="clearcart()"> clear cart</button>
-        </div>
-
-        <div id="About" class="tabcontent">
-            <h3>About</h3>
-            <p>This is a simple e-commerce example.</p>
-        </div>
-
     </body>
 </html>
