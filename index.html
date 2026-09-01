@@ -77,10 +77,10 @@
                 display: flex;
                 height: 100vh; /* Make container take full viewport height */
             }
-            /* Vertical Navigation Bar - overlay style (hidden by default, expands on hover/focus) */
+            /* Vertical Navigation Bar - overlay style (peekable handle visible by default) */
             .sidenav {
                 height: 100%; /* Full height of its parent (container) */
-                width: 0; /* Hidden by default */
+                width: 28px; /* Peekable handle visible so it can be hovered onto */
                 position: fixed; /* Overlay */
                 z-index: 1000; /* On top */
                 top: 0;
@@ -91,6 +91,18 @@
                 transition: width 0.25s ease-in-out; /* Smooth transition */
                 box-sizing: border-box; /* Include padding in width */
             }
+            /* Small visual handle (hamburger) so the collapsed nav is discoverable */
+            .sidenav::after {
+                content: '\2261'; /* ≡ */
+                position: absolute;
+                left: 6px;
+                top: 12px;
+                color: var(--toggle-btn-color);
+                font-size: 18px;
+                line-height: 18px;
+                pointer-events: none;
+            }
+
             /* Expand the nav when hovered or focused (keyboard users) */
             .sidenav:hover, .sidenav:focus-within {
                 width: 200px;
@@ -109,6 +121,9 @@
                 cursor: pointer;
                 transition: 0.3s;
                 box-sizing: border-box; /* Include padding in width */
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .sidenav a:hover, .sidenav button.tablinks:hover {
                 color: #f1f1f1;
@@ -116,6 +131,12 @@
             }
             .sidenav button.tablinks.active {
                 background-color: var(--active-tab-bg); /* Active tab color */
+            }
+
+            /* Hide the text labels visually when nav is collapsed but keep them available to screen readers */
+            .sidenav:not(:hover) .tablinks {
+                text-indent: -9999px;
+                padding-left: 8px; /* keep the button tap area visible */
             }
 
             /* Accessibility controls pinned to the bottom of the nav */
