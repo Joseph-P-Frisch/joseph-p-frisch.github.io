@@ -77,20 +77,25 @@
                 display: flex;
                 height: 100vh; /* Make container take full viewport height */
             }
-            /* Vertical Navigation Bar */
+            /* Vertical Navigation Bar - overlay style (hidden by default, expands on hover/focus) */
             .sidenav {
                 height: 100%; /* Full height of its parent (container) */
-                width: 200px; /* Default width */
-                position: fixed; /* Stay in place */
-                z-index: 1; /* Stay on top */
+                width: 0; /* Hidden by default */
+                position: fixed; /* Overlay */
+                z-index: 1000; /* On top */
                 top: 0;
                 left: 0;
                 background-color: var(--nav-bg); /* Sapphire blue */
                 overflow-x: hidden; /* Disable horizontal scroll */
                 padding-top: 20px;
-                transition: 0.3s; /* Smooth transition */
+                transition: width 0.25s ease-in-out; /* Smooth transition */
                 box-sizing: border-box; /* Include padding in width */
             }
+            /* Expand the nav when hovered or focused (keyboard users) */
+            .sidenav:hover, .sidenav:focus-within {
+                width: 200px;
+            }
+
             .sidenav a, .sidenav button.tablinks { /* Style tab buttons inside sidenav */
                 padding: 8px 8px 8px 32px;
                 text-decoration: none;
@@ -112,45 +117,43 @@
             .sidenav button.tablinks.active {
                 background-color: var(--active-tab-bg); /* Active tab color */
             }
+
+            /* Accessibility controls pinned to the bottom of the nav */
+            .sidenav .accessibility-controls {
+                position: absolute;
+                bottom: 10px;
+                left: 0;
+                width: 100%;
+                padding: 8px 16px 12px 16px;
+                box-sizing: border-box;
+                border-top: 1px solid rgba(255,255,255,0.08);
+            }
+            .sidenav .accessibility-controls h4, .sidenav .accessibility-controls h5 {
+                margin: 6px 0 4px 0;
+                color: var(--toggle-btn-color);
+                font-size: 14px;
+            }
+            .sidenav .accessibility-controls button {
+                margin: 4px 4px 4px 0;
+                padding: 6px 8px;
+                font-size: 13px;
+                cursor: pointer;
+                background: transparent;
+                color: var(--toggle-btn-color);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 3px;
+            }
+
             /* Content area */
             .content-area {
-                margin-left: 200px; /* Same as the width of the sidenav */
+                margin-left: 0; /* No forced margin - sidenav overlays */
                 padding: 1px 16px;
                 transition: margin-left 0.3s;
-                width: calc(100% - 200px); /* Adjust content width */
+                width: 100%; /* Full width */
                 box-sizing: border-box; /* Include padding in width */
                 overflow-y: auto; /* Allow content to scroll if it overflows vertically */
             }
-            /* Hidden sidenav */
-            .sidenav.hidden {
-                width: 0;
-                padding-top: 0;
-            }
-            .content-area.nav-hidden {
-                margin-left: 0;
-                width: 100%;
-            }
-            /* Toggle button for nav */
-            .nav-toggle-btn {
-                position: fixed;
-                top: 10px;
-                left: 10px;
-                font-size: 20px;
-                cursor: pointer;
-                background-color: var(--toggle-btn-bg);
-                color: var(--toggle-btn-color);
-                border: none;
-                padding: 5px 10px;
-                z-index: 2; /* Above nav bar */
-                border-radius: 3px;
-                transition: left 0.3s;
-            }
-            .nav-toggle-btn.nav-hidden { /* Adjust button position when nav is hidden */
-                left: 10px; /* Keep it on the left */
-            }
-            .nav-toggle-btn.nav-visible { /* Adjust button position when nav is visible */
-                left: 210px; /* Position to the right of the nav bar */
-            }
+
             /* Tab content */
             .tabcontent {
                 display: none;
@@ -196,25 +199,31 @@
                 -o-transform: translateX(-50%);
             }
 
+            /* Floating "Read selection" launcher */
+            .read-selection-btn {
+                position: absolute;
+                z-index: 1002;
+                display: none;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                border: none;
+                padding: 6px 8px;
+                border-radius: 18px;
+                cursor: pointer;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            }
+
             /* Media Queries for Responsiveness */
             @media screen and (max-width: 768px) {
-                .sidenav {
-                    width: 0; /* Hidden by default on small screens */
-                    padding-top: 0;
-                }
-                .sidenav.active-mobile-nav { /* When explicitly opened on mobile */
+                .sidenav:hover, .sidenav:focus-within { /* cover screen on small */
                     width: 100%;
-                    left: 0; /* Cover the whole screen */
+                }
+                .sidenav {
+                    padding-top: 20px;
                 }
                 .content-area {
                     margin-left: 0;
                     width: 100%;
-                }
-                .nav-toggle-btn {
-                    left: 10px; /* Always on the left on small screens */
-                }
-                .nav-toggle-btn.nav-visible {
-                    left: 10px; /* Ensure it stays on the left even when nav is open (overlay) */
                 }
                 .skip-to-content:focus {
                     left: 10px;
@@ -232,14 +241,30 @@
         <a href="#mainContentArea" class="skip-to-content">Skip to main content</a>
         <div id="google_translate_element" style="position: fixed; top: 10px; right: 10px; z-index: 1001;"></div>
 
-        <button id="navToggleBtn" class="nav-toggle-btn" onclick="toggleNav()" aria-label="Toggle Navigation">☰</button>
-
         <div class="container">
             <div id="mySidenav" class="sidenav" role="tablist" aria-orientation="vertical">
                 <button class="tablinks" onclick="openTab(event, 'Home')" id="defaultOpen" role="tab" aria-controls="Home" aria-selected="true" tabindex="0">Home</button>
                 <button class="tablinks" onclick="openTab(event, 'Projects')" id="projectsTab" role="tab" aria-controls="Projects" aria-selected="false" tabindex="-1">Projects</button>
                 <button class="tablinks" onclick="openTab(event, 'Settings')" id="settingsTab" role="tab" aria-controls="Settings" aria-selected="false" tabindex="-1">Settings</button>
                 <button class="tablinks" onclick="openTab(event, 'About')" id="aboutTab" role="tab" aria-controls="About" aria-selected="false" tabindex="-1">About</button>
+
+                <!-- Accessibility settings moved here (pinned to bottom) -->
+                <div class="accessibility-controls" aria-hidden="false">
+                    <h4>Theme</h4>
+                    <button onclick="setTheme('normal-mode')">Normal</button>
+                    <button onclick="setTheme('protanopia-mode')">Protanopia</button>
+                    <button onclick="setTheme('deuteranopia-mode')">Deuteranopia</button>
+                    <button onclick="setTheme('tritanopia-mode')">Tritanopia</button>
+
+                    <h4>Font Size</h4>
+                    <button onclick="setFontSize('small')">Small</button>
+                    <button onclick="setFontSize('medium')">Medium</button>
+                    <button onclick="setFontSize('large')">Large</button>
+
+                    <h4>Text-to-Speech</h4>
+                    <button id="readActiveTabBtn" onclick="readActiveTabContent()">Read Active Tab</button>
+                    <button id="readSelectionNavBtn" onclick="readSelection()">Read Selection</button>
+                </div>
             </div>
 
             <div id="mainContentArea" class="content-area">
@@ -263,20 +288,7 @@
 
                 <div id="Settings" class="tabcontent" role="tabpanel" aria-labelledby="settingsTab" aria-hidden="true">
                     <h3>Accessibility Settings</h3>
-                    <h4>Theme (Colorblindness modes):</h4>
-                    <button onclick="setTheme('normal-mode')">Normal</button>
-                    <button onclick="setTheme('protanopia-mode')">Protanopia</button>
-                    <button onclick="setTheme('deuteranopia-mode')">Deuteranopia</button>
-                    <button onclick="setTheme('tritanopia-mode')">Tritanopia</button>
-
-                    <h4>Font Size:</h4>
-                    <button onclick="setFontSize('small')">Small</button>
-                    <button onclick="setFontSize('medium')">Medium</button>
-                    <button onclick="setFontSize('large')">Large</button>
-
-                    <h4>Text-to-Speech:</h4>
-                    <button onclick="readActiveTabContent()">Read Page Content</button>
-                    <button onclick="stopSpeech()">Stop Reading</button>
+                    <p>Accessibility controls are available in the navigation menu (hover or focus the menu at the left). They are pinned to the bottom of the menu.</p>
                 </div>
 
                 <div id="About" class="tabcontent" role="tabpanel" aria-labelledby="aboutTab" aria-hidden="true">
@@ -284,6 +296,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Floating read-selection launcher (appears when user selects text) -->
+        <button id="readSelectionBtn" class="read-selection-btn" title="Read highlighted text">🔊 Read</button>
 
         <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
@@ -408,30 +423,7 @@
                 evt.currentTarget.setAttribute("aria-selected", "true");
                 evt.currentTarget.setAttribute("tabindex", "0"); // Make active tab focusable
 
-                // Close nav on mobile after tab selection
-                if (window.innerWidth <= 768) {
-                    toggleNav(); // This will hide the nav if it's open
-                }
-            }
-
-            function toggleNav() {
-                var sidenav = document.getElementById("mySidenav");
-                var contentArea = document.getElementById("mainContentArea");
-                var navToggleBtn = document.getElementById("navToggleBtn");
-
-                if (sidenav.classList.contains('hidden')) {
-                    sidenav.classList.remove('hidden');
-                    sidenav.classList.add('active-mobile-nav'); // Add class for mobile display
-                    contentArea.classList.remove('nav-hidden');
-                    navToggleBtn.classList.remove('nav-hidden');
-                    navToggleBtn.classList.add('nav-visible');
-                } else {
-                    sidenav.classList.add('hidden');
-                    sidenav.classList.remove('active-mobile-nav'); // Remove class for mobile display
-                    contentArea.classList.add('nav-hidden');
-                    navToggleBtn.classList.add('nav-hidden');
-                    navToggleBtn.classList.remove('nav-visible');
-                }
+                // Do not toggle nav on tab selection - nav overlays instead of pushing content
             }
 
             // Accessibility functions
@@ -503,19 +495,87 @@
                 currentSpeech = null;
             }
 
+            // Read the current selection (used by nav button and floating launcher)
+            function readSelection() {
+                if (currentSpeech) stopSpeech();
+                const sel = window.getSelection();
+                const text = sel ? sel.toString().trim() : '';
+                if (text) {
+                    currentSpeech = new SpeechSynthesisUtterance(text);
+                    currentSpeech.lang = document.documentElement.lang || 'en-US';
+                    window.speechSynthesis.speak(currentSpeech);
+                } else {
+                    console.log('No text selected to read.');
+                }
+            }
+
+            // Floating launcher behavior
+            (function() {
+                const readBtn = document.getElementById('readSelectionBtn');
+                let lastSelectionText = '';
+
+                document.addEventListener('selectionchange', () => {
+                    const sel = window.getSelection();
+                    const text = sel ? sel.toString().trim() : '';
+                    if (text) {
+                        lastSelectionText = text;
+                        // Try to position the button near the selection
+                        const range = sel.getRangeAt(0).cloneRange();
+                        let rect;
+                        try {
+                            rect = range.getBoundingClientRect();
+                        } catch (e) {
+                            rect = null;
+                        }
+
+                        if (rect && rect.width + rect.height > 0) {
+                            const x = Math.min(window.innerWidth - 60, rect.right + window.scrollX + 8);
+                            const y = Math.max(8, rect.top + window.scrollY - 36);
+                            readBtn.style.left = x + 'px';
+                            readBtn.style.top = y + 'px';
+                        } else {
+                            // fallback position near mouse or top-right
+                            readBtn.style.right = '12px';
+                            readBtn.style.top = '12px';
+                        }
+
+                        readBtn.style.display = 'block';
+                        readBtn.setAttribute('aria-hidden', 'false');
+                    } else {
+                        lastSelectionText = '';
+                        readBtn.style.display = 'none';
+                        readBtn.setAttribute('aria-hidden', 'true');
+                    }
+                });
+
+                readBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (lastSelectionText) {
+                        if (currentSpeech) stopSpeech();
+                        currentSpeech = new SpeechSynthesisUtterance(lastSelectionText);
+                        currentSpeech.lang = document.documentElement.lang || 'en-US';
+                        window.speechSynthesis.speak(currentSpeech);
+                    } else {
+                        readSelection();
+                    }
+                });
+
+                // Hide the floating button when clicking elsewhere
+                document.addEventListener('click', (e) => {
+                    if (!e.target || e.target.id === 'readSelectionBtn') return;
+                    const sel = window.getSelection();
+                    if (sel && sel.toString().trim() === '') {
+                        readBtn.style.display = 'none';
+                        readBtn.setAttribute('aria-hidden', 'true');
+                    }
+                });
+
+            })();
+
             // Set default tab to open on load and apply saved preferences
             document.addEventListener('DOMContentLoaded', (event) => {
                 document.getElementById("defaultOpen").click();
-                // Initialize nav button position based on default nav state
-                document.getElementById("navToggleBtn").classList.add('nav-visible');
-
-                // Hide nav by default on small screens
-                if (window.innerWidth <= 768) {
-                    document.getElementById("mySidenav").classList.add('hidden');
-                    document.getElementById("mainContentArea").classList.add('nav-hidden');
-                    document.getElementById("navToggleBtn").classList.add('nav-hidden');
-                    document.getElementById("navToggleBtn").classList.remove('nav-visible');
-                }
 
                 // Apply saved theme and font size
                 const savedTheme = localStorage.getItem('selectedTheme');
@@ -560,10 +620,17 @@
                     if (nextTabIndex !== undefined && nextTabIndex !== currentIndex) {
                         allTablinks[nextTabIndex].focus(); // Move focus to the next tab
                         // No need to click, as focus alone should handle the visual indication for screen readers
-                        // And the openTab function is triggered by click for visual activation.
-                        // If we want arrow keys to *also* switch content immediately, uncomment the line below:
-                        // allTablinks[nextTabIndex].click();
                     }
+                });
+
+                // Allow keyboard users to open the nav by focusing inside it
+                sidenav.addEventListener('focusin', function() {
+                    // expand is handled by :focus-within in CSS; this is just to ensure visual state for some browsers
+                    sidenav.style.width = '200px';
+                });
+                sidenav.addEventListener('focusout', function() {
+                    // collapse back; CSS will handle but we clear inline width to allow transition
+                    sidenav.style.width = '';
                 });
             });
 
