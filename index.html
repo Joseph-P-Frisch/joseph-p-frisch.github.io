@@ -213,14 +213,23 @@
                 white-space: nowrap;
             }
 
-            /* Content area */
+            /* Content area: add left padding so page content isn't hidden behind the collapsed nav. When nav expands, add margin and a border between nav and content. */
             .content-area {
-                margin-left: 0; /* No forced margin - sidenav overlays */
+                margin-left: 0; /* fallback */
                 padding: 1px 16px;
-                transition: margin-left 0.3s;
+                padding-left: 48px; /* space for collapsed nav (40px hit area + 8px gap) */
+                transition: margin-left 0.3s, padding-left 0.3s;
                 width: 100%; /* Full width */
                 box-sizing: border-box; /* Include padding in width */
                 overflow-y: auto; /* Allow content to scroll if it overflows vertically */
+                background-clip: padding-box;
+            }
+
+            /* When the sidenav is expanded, push the content and add a subtle border to separate nav and content */
+            .sidenav[aria-expanded="true"] ~ .content-area, .sidenav:hover ~ .content-area, .sidenav:focus-within ~ .content-area {
+                margin-left: 200px;
+                padding-left: 24px; /* reduce inner padding when nav is visible */
+                border-left: 1px solid var(--tab-border);
             }
 
             /* Tab content */
@@ -292,7 +301,12 @@
                 }
                 .content-area {
                     margin-left: 0;
+                    padding-left: 16px; /* no reserved space on small screens */
                     width: 100%;
+                }
+                .sidenav[aria-expanded="true"] ~ .content-area, .sidenav:hover ~ .content-area, .sidenav:focus-within ~ .content-area {
+                    margin-left: 0;
+                    border-left: none;
                 }
                 .skip-to-content:focus {
                     left: 10px;
