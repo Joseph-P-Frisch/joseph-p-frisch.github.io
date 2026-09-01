@@ -91,17 +91,6 @@
                 transition: width 0.25s ease-in-out; /* Smooth transition */
                 box-sizing: border-box; /* Include padding in width */
             }
-            /* Small visual handle (hamburger) so the collapsed nav is discoverable */
-            .sidenav::after {
-                content: '\2261'; /* ≡ */
-                position: absolute;
-                left: 6px;
-                top: 12px;
-                color: var(--toggle-btn-color);
-                font-size: 18px;
-                line-height: 18px;
-                pointer-events: none;
-            }
 
             /* Expand the nav when hovered or focused (keyboard users) */
             .sidenav:hover, .sidenav:focus-within {
@@ -163,6 +152,13 @@
                 color: var(--toggle-btn-color);
                 border: 1px solid rgba(255,255,255,0.12);
                 border-radius: 3px;
+            }
+
+            /* Ensure translator inside nav is positioned correctly */
+            .accessibility-controls #google_translate_element {
+                position: static;
+                margin-bottom: 8px;
+                color: var(--toggle-btn-color);
             }
 
             /* Content area */
@@ -260,7 +256,6 @@
     </head>
     <body>
         <a href="#mainContentArea" class="skip-to-content">Skip to main content</a>
-        <div id="google_translate_element" style="position: fixed; top: 10px; right: 10px; z-index: 1001;"></div>
 
         <div class="container">
             <div id="mySidenav" class="sidenav" role="tablist" aria-orientation="vertical">
@@ -271,6 +266,7 @@
 
                 <!-- Accessibility settings moved here (pinned to bottom) -->
                 <div class="accessibility-controls" aria-hidden="false">
+                    <div id="google_translate_element"></div>
                     <h4>Theme</h4>
                     <button onclick="setTheme('normal-mode')">Normal</button>
                     <button onclick="setTheme('protanopia-mode')">Protanopia</button>
