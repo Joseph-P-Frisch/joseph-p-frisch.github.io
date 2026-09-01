@@ -18,6 +18,8 @@
                 --toggle-btn-bg: #4682B4;
                 --toggle-btn-color: white;
                 --font-size-base: 16px; /* Base font size */
+                --translate-contrast-bg: #ffffff; /* container contrasting background for translate */
+                --translate-contrast-color: #222222;
             }
 
             body.normal-mode {
@@ -89,9 +91,14 @@
                 left: 0;
                 background-color: var(--nav-bg); /* Sapphire blue */
                 overflow-x: hidden; /* Disable horizontal scroll */
-                padding-top: 20px;
+                padding-top: 12px; /* reduce original padding; first tab will be pushed down to sit under the toggle */
                 transition: width 0.25s ease-in-out; /* Smooth transition */
                 box-sizing: border-box; /* Include padding in width */
+            }
+
+            /* Ensure the first tab button sits below the nav menu button */
+            .sidenav .tablinks:first-of-type {
+                margin-top: 48px; /* places first tab below the fixed nav-toggle button */
             }
 
             /* Expanded state via attribute and hover/focus */
@@ -132,15 +139,17 @@
                 padding-left: 8px; /* keep the button tap area visible */
             }
 
-            /* Accessibility controls pinned to the bottom of the nav */
+            /* Accessibility controls moved up so translate/aria quick button does not superimpose them */
             .sidenav .accessibility-controls {
                 position: absolute;
-                bottom: 10px;
+                top: 56px; /* moved up from bottom to avoid overlap */
                 left: 0;
                 width: 100%;
                 padding: 8px 16px 12px 16px;
                 box-sizing: border-box;
                 border-top: 1px solid rgba(255,255,255,0.08);
+                max-height: calc(100vh - 120px);
+                overflow-y: auto;
             }
             .sidenav .accessibility-controls h4, .sidenav .accessibility-controls h5 {
                 margin: 6px 0 4px 0;
@@ -165,12 +174,24 @@
                 color: var(--toggle-btn-color);
             }
 
-            /* Small translator quick-access button visible while collapsed (left bottom) */
-            .translate-quick {
+            /* Translate container (contrasting background to the menu) */
+            .translate-container {
                 position: fixed;
                 left: 8px;
                 bottom: 12px;
                 z-index: 1003;
+                background: var(--translate-contrast-bg);
+                color: var(--translate-contrast-color);
+                border-radius: 6px;
+                padding: 6px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .translate-container .translate-quick {
+                position: static;
                 width: 28px;
                 height: 28px;
                 display: flex;
@@ -181,16 +202,16 @@
                 border: none;
                 border-radius: 4px;
                 cursor: pointer;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                box-shadow: none;
             }
-            .translate-quick:focus { outline: 2px solid #fff; }
+            .translate-container:focus-within { outline: 2px solid rgba(0,0,0,0.12); }
 
             /* Toggle button for touch users (always visible) */
             .nav-toggle {
                 position: fixed;
                 left: 6px;
                 top: 8px;
-                z-index: 1003;
+                z-index: 1004; /* above translate container */
                 width: 36px;
                 height: 36px;
                 background: transparent;
@@ -314,7 +335,8 @@
                 }
                 /* Make toggle larger on small screens for touch */
                 .nav-toggle { left: 8px; top: 8px; width: 44px; height: 44px; }
-                .translate-quick { left: 12px; bottom: 12px; width: 36px; height: 36px; }
+                .translate-container { left: 12px; bottom: 12px; }
+                .translate-container .translate-quick { width: 36px; height: 36px; }
             }
         </style>
         <script type="text/javascript">
@@ -332,8 +354,10 @@
             <span class="sr-only">Toggle navigation</span>
         </button>
 
-        <!-- Quick translator button visible while collapsed (focusable) -->
-        <button id="translateQuickBtn" class="translate-quick" aria-label="Open language selector">🌐</button>
+        <!-- Quick translator button placed inside a contrasting container -->
+        <div class="translate-container" aria-hidden="false">
+            <button id="translateQuickBtn" class="translate-quick" aria-label="Open language selector">🌐</button>
+        </div>
 
         <div class="container">
             <div id="mySidenav" class="sidenav" role="tablist" aria-orientation="vertical" aria-expanded="false">
@@ -342,7 +366,7 @@
                 <button class="tablinks" onclick="openTab(event, 'Settings')" id="settingsTab" role="tab" aria-controls="Settings" aria-selected="false" tabindex="-1">Settings</button>
                 <button class="tablinks" onclick="openTab(event, 'About')" id="aboutTab" role="tab" aria-controls="About" aria-selected="false" tabindex="-1">About</button>
 
-                <!-- Accessibility settings moved here (pinned to bottom) -->
+                <!-- Accessibility settings moved up (was pinned to bottom) so the translate/aria quick button does not superimpose them -->
                 <div class="accessibility-controls" aria-hidden="false">
                     <div id="google_translate_element"></div>
                     <h4>Theme</h4>
@@ -383,7 +407,7 @@
 
                 <div id="Settings" class="tabcontent" role="tabpanel" aria-labelledby="settingsTab" aria-hidden="true">
                     <h3>Accessibility Settings</h3>
-                    <p>Accessibility controls are available in the navigation menu (hover or focus the menu at the left). They are pinned to the bottom of the menu.</p>
+                    <p>Accessibility controls are available in the navigation menu (hover or focus the menu at the left). They were moved up from the bottom to avoid overlap with the translate/quick buttons.</p>
                 </div>
 
                 <div id="About" class="tabcontent" role="tabpanel" aria-labelledby="aboutTab" aria-hidden="true">
