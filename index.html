@@ -91,14 +91,24 @@
                 left: 0;
                 background-color: var(--nav-bg); /* Sapphire blue */
                 overflow-x: hidden; /* Disable horizontal scroll */
-                padding-top: 12px; /* reduce original padding; first tab will be pushed down to sit under the toggle */
+                padding-top: 8px; /* ensure space for toggle */
                 transition: width 0.25s ease-in-out; /* Smooth transition */
                 box-sizing: border-box; /* Include padding in width */
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
             }
 
             /* Ensure the first tab button sits below the nav menu button */
-            .sidenav .tablinks:first-of-type {
-                margin-top: 48px; /* places first tab below the fixed nav-toggle button */
+            .sidenav .tab-container {
+                margin-top: 44px; /* places first tab below the fixed nav-toggle button */
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding: 4px 8px;
+                box-sizing: border-box;
+                overflow-y: auto;
+                max-height: calc(50vh);
             }
 
             /* Expanded state via attribute and hover/focus */
@@ -139,24 +149,25 @@
                 padding-left: 8px; /* keep the button tap area visible */
             }
 
-            /* Accessibility controls moved up so translate/aria quick button does not superimpose them */
-            .sidenav .accessibility-controls {
-                position: absolute;
-                top: 56px; /* moved up from bottom to avoid overlap */
-                left: 0;
-                width: 100%;
-                padding: 8px 16px 12px 16px;
+            /* Accessibility container stacked below tabs */
+            .accessibility-container {
+                margin-top: 8px;
+                padding: 8px 12px;
                 box-sizing: border-box;
                 border-top: 1px solid rgba(255,255,255,0.08);
-                max-height: calc(100vh - 120px);
                 overflow-y: auto;
+                max-height: calc(50vh - 20px);
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
             }
-            .sidenav .accessibility-controls h4, .sidenav .accessibility-controls h5 {
+
+            .accessibility-container h4, .accessibility-container h5 {
                 margin: 6px 0 4px 0;
                 color: var(--toggle-btn-color);
                 font-size: 14px;
             }
-            .sidenav .accessibility-controls button {
+            .accessibility-container button {
                 margin: 4px 4px 4px 0;
                 padding: 6px 8px;
                 font-size: 13px;
@@ -168,7 +179,7 @@
             }
 
             /* Ensure translator inside nav is positioned correctly */
-            .accessibility-controls #google_translate_element {
+            .accessibility-container #google_translate_element {
                 position: static;
                 margin-bottom: 8px;
                 color: var(--toggle-btn-color);
@@ -337,6 +348,8 @@
                 .nav-toggle { left: 8px; top: 8px; width: 44px; height: 44px; }
                 .translate-container { left: 12px; bottom: 12px; }
                 .translate-container .translate-quick { width: 36px; height: 36px; }
+                .sidenav .tab-container { max-height: calc(40vh); }
+                .accessibility-container { max-height: calc(40vh); }
             }
         </style>
         <script type="text/javascript">
@@ -360,29 +373,33 @@
         </div>
 
         <div class="container">
-            <div id="mySidenav" class="sidenav" role="tablist" aria-orientation="vertical" aria-expanded="false">
-                <button class="tablinks" onclick="openTab(event, 'Home')" id="defaultOpen" role="tab" aria-controls="Home" aria-selected="true" tabindex="0">Home</button>
-                <button class="tablinks" onclick="openTab(event, 'Projects')" id="projectsTab" role="tab" aria-controls="Projects" aria-selected="false" tabindex="-1">Projects</button>
-                <button class="tablinks" onclick="openTab(event, 'Settings')" id="settingsTab" role="tab" aria-controls="Settings" aria-selected="false" tabindex="-1">Settings</button>
-                <button class="tablinks" onclick="openTab(event, 'About')" id="aboutTab" role="tab" aria-controls="About" aria-selected="false" tabindex="-1">About</button>
+            <div id="mySidenav" class="sidenav" role="navigation" aria-orientation="vertical" aria-expanded="false">
+                <div class="tab-container" role="tablist" aria-label="Main navigation tabs">
+                    <button class="tablinks" onclick="openTab(event, 'Home')" id="defaultOpen" role="tab" aria-controls="Home" aria-selected="true" tabindex="0">Home</button>
+                    <button class="tablinks" onclick="openTab(event, 'Projects')" id="projectsTab" role="tab" aria-controls="Projects" aria-selected="false" tabindex="-1">Projects</button>
+                    <button class="tablinks" onclick="openTab(event, 'Settings')" id="settingsTab" role="tab" aria-controls="Settings" aria-selected="false" tabindex="-1">Settings</button>
+                    <button class="tablinks" onclick="openTab(event, 'About')" id="aboutTab" role="tab" aria-controls="About" aria-selected="false" tabindex="-1">About</button>
+                </div>
 
-                <!-- Accessibility settings moved up (was pinned to bottom) so the translate/aria quick button does not superimpose them -->
-                <div class="accessibility-controls" aria-hidden="false">
-                    <div id="google_translate_element"></div>
-                    <h4>Theme</h4>
-                    <button onclick="setTheme('normal-mode')">Normal</button>
-                    <button onclick="setTheme('protanopia-mode')">Protanopia</button>
-                    <button onclick="setTheme('deuteranopia-mode')">Deuteranopia</button>
-                    <button onclick="setTheme('tritanopia-mode')">Tritanopia</button>
+                <!-- Accessibility controls moved into their own scrollable container and stacked under tabs -->
+                <div class="accessibility-container" aria-label="Accessibility controls">
+                    <div class="accessibility-controls" aria-hidden="false">
+                        <div id="google_translate_element"></div>
+                        <h4>Theme</h4>
+                        <button onclick="setTheme('normal-mode')">Normal</button>
+                        <button onclick="setTheme('protanopia-mode')">Protanopia</button>
+                        <button onclick="setTheme('deuteranopia-mode')">Deuteranopia</button>
+                        <button onclick="setTheme('tritanopia-mode')">Tritanopia</button>
 
-                    <h4>Font Size</h4>
-                    <button onclick="setFontSize('small')">Small</button>
-                    <button onclick="setFontSize('medium')">Medium</button>
-                    <button onclick="setFontSize('large')">Large</button>
+                        <h4>Font Size</h4>
+                        <button onclick="setFontSize('small')">Small</button>
+                        <button onclick="setFontSize('medium')">Medium</button>
+                        <button onclick="setFontSize('large')">Large</button>
 
-                    <h4>Text-to-Speech</h4>
-                    <button id="readActiveTabBtn" onclick="readActiveTabContent()">Read Active Tab</button>
-                    <button id="readSelectionNavBtn" onclick="readSelection()">Read Selection</button>
+                        <h4>Text-to-Speech</h4>
+                        <button id="readActiveTabBtn" onclick="readActiveTabContent()">Read Active Tab</button>
+                        <button id="readSelectionNavBtn" onclick="readSelection()">Read Selection</button>
+                    </div>
                 </div>
             </div>
 
@@ -407,7 +424,7 @@
 
                 <div id="Settings" class="tabcontent" role="tabpanel" aria-labelledby="settingsTab" aria-hidden="true">
                     <h3>Accessibility Settings</h3>
-                    <p>Accessibility controls are available in the navigation menu (hover or focus the menu at the left). They were moved up from the bottom to avoid overlap with the translate/quick buttons.</p>
+                    <p>Accessibility controls are available in the navigation menu (hover or focus the menu at the left). They were moved into their own container and stacked under the navigation tabs to allow independent scrolling.</p>
                 </div>
 
                 <div id="About" class="tabcontent" role="tabpanel" aria-labelledby="aboutTab" aria-hidden="true">
