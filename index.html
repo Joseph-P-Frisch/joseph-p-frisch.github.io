@@ -77,10 +77,12 @@
                 display: flex;
                 height: 100vh; /* Make container take full viewport height */
             }
+
             /* Vertical Navigation Bar - overlay style (peekable handle visible by default) */
+            /* Default collapsed width is slightly larger for touch (40px). We use aria-expanded to track state for assistive tech. */
             .sidenav {
-                height: 100%; /* Full height of its parent (container) */
-                width: 28px; /* Peekable handle visible so it can be hovered onto */
+                height: 100%;
+                width: 40px; /* Slightly larger hit area for touch */
                 position: fixed; /* Overlay */
                 z-index: 1000; /* On top */
                 top: 0;
@@ -92,8 +94,10 @@
                 box-sizing: border-box; /* Include padding in width */
             }
 
-            /* Expand the nav when hovered or focused (keyboard users) */
-            .sidenav:hover, .sidenav:focus-within {
+            /* Expanded state via attribute and hover/focus */
+            .sidenav[aria-expanded="true"],
+            .sidenav:hover,
+            .sidenav:focus-within {
                 width: 200px;
             }
 
@@ -122,8 +126,8 @@
                 background-color: var(--active-tab-bg); /* Active tab color */
             }
 
-            /* Hide the text labels visually when nav is collapsed but keep them available to screen readers */
-            .sidenav:not(:hover) .tablinks {
+            /* When collapsed (aria-expanded=false) hide labels visually but keep them accessible */
+            .sidenav[aria-expanded="false"] .tablinks {
                 text-indent: -9999px;
                 padding-left: 8px; /* keep the button tap area visible */
             }
@@ -159,6 +163,54 @@
                 position: static;
                 margin-bottom: 8px;
                 color: var(--toggle-btn-color);
+            }
+
+            /* Small translator quick-access button visible while collapsed (left bottom) */
+            .translate-quick {
+                position: fixed;
+                left: 8px;
+                bottom: 12px;
+                z-index: 1003;
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--nav-bg);
+                color: var(--toggle-btn-color);
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            }
+            .translate-quick:focus { outline: 2px solid #fff; }
+
+            /* Toggle button for touch users (always visible) */
+            .nav-toggle {
+                position: fixed;
+                left: 6px;
+                top: 8px;
+                z-index: 1003;
+                width: 36px;
+                height: 36px;
+                background: transparent;
+                color: var(--toggle-btn-color);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+            .nav-toggle:focus { outline: 2px solid #fff; }
+
+            /* Screen-reader-only text */
+            .sr-only {
+                position: absolute !important;
+                height: 1px; width: 1px;
+                overflow: hidden;
+                clip: rect(1px, 1px, 1px, 1px);
+                white-space: nowrap;
             }
 
             /* Content area */
@@ -232,7 +284,7 @@
 
             /* Media Queries for Responsiveness */
             @media screen and (max-width: 768px) {
-                .sidenav:hover, .sidenav:focus-within { /* cover screen on small */
+                .sidenav[aria-expanded="true"], .sidenav:hover, .sidenav:focus-within { /* cover screen on small */
                     width: 100%;
                 }
                 .sidenav {
@@ -246,6 +298,9 @@
                     left: 10px;
                     transform: none;
                 }
+                /* Make toggle larger on small screens for touch */
+                .nav-toggle { left: 8px; top: 8px; width: 44px; height: 44px; }
+                .translate-quick { left: 12px; bottom: 12px; width: 36px; height: 36px; }
             }
         </style>
         <script type="text/javascript">
@@ -257,8 +312,17 @@
     <body>
         <a href="#mainContentArea" class="skip-to-content">Skip to main content</a>
 
+        <!-- Toggle button for touch users / always-visible handle (accessible) -->
+        <button id="navToggleBtn" class="nav-toggle" aria-controls="mySidenav" aria-expanded="false" aria-label="Open navigation">
+            <span aria-hidden="true">☰</span>
+            <span class="sr-only">Toggle navigation</span>
+        </button>
+
+        <!-- Quick translator button visible while collapsed (focusable) -->
+        <button id="translateQuickBtn" class="translate-quick" aria-label="Open language selector">🌐</button>
+
         <div class="container">
-            <div id="mySidenav" class="sidenav" role="tablist" aria-orientation="vertical">
+            <div id="mySidenav" class="sidenav" role="tablist" aria-orientation="vertical" aria-expanded="false">
                 <button class="tablinks" onclick="openTab(event, 'Home')" id="defaultOpen" role="tab" aria-controls="Home" aria-selected="true" tabindex="0">Home</button>
                 <button class="tablinks" onclick="openTab(event, 'Projects')" id="projectsTab" role="tab" aria-controls="Projects" aria-selected="false" tabindex="-1">Projects</button>
                 <button class="tablinks" onclick="openTab(event, 'Settings')" id="settingsTab" role="tab" aria-controls="Settings" aria-selected="false" tabindex="-1">Settings</button>
@@ -611,13 +675,67 @@
 
                 // Keyboard navigation for tabs
                 const sidenav = document.getElementById("mySidenav");
-                sidenav.addEventListener('keydown', function(e) {
-                    const tablinks = Array.from(sidenav.querySelectorAll('.tablinks[tabindex="0"]')); // Get currently focused tab
-                    if (tablinks.length === 0) return;
-                    const activeTab = tablinks[0]; // Assuming only one tab can be tabindex=0 at a time
+                const navToggle = document.getElementById("navToggleBtn");
+                const translateQuick = document.getElementById("translateQuickBtn");
 
+                // helper to set expanded state and sync attributes
+                function setExpanded(expanded) {
+                    if (expanded) {
+                        sidenav.setAttribute('aria-expanded', 'true');
+                        navToggle.setAttribute('aria-expanded', 'true');
+                        sidenav.style.width = '200px';
+                    } else {
+                        sidenav.setAttribute('aria-expanded', 'false');
+                        navToggle.setAttribute('aria-expanded', 'false');
+                        sidenav.style.width = ''; // let CSS handle collapsed width
+                    }
+                }
+
+                // Mouse/keyboard interactions
+                sidenav.addEventListener('mouseenter', function() { setExpanded(true); });
+                sidenav.addEventListener('mouseleave', function() { setExpanded(false); });
+                sidenav.addEventListener('focusin', function() { setExpanded(true); });
+                sidenav.addEventListener('focusout', function(e) {
+                    // If focus moved outside the sidenav, collapse it
+                    window.setTimeout(function() {
+                        if (!sidenav.contains(document.activeElement)) {
+                            setExpanded(false);
+                        }
+                    }, 0);
+                });
+
+                // Toggle button for touch users
+                navToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const expanded = sidenav.getAttribute('aria-expanded') === 'true';
+                    setExpanded(!expanded);
+                    if (!expanded) {
+                        // focus first tabbable inside nav
+                        const first = sidenav.querySelector('.tablinks');
+                        if (first) first.focus();
+                    } else {
+                        navToggle.focus();
+                    }
+                });
+
+                // Quick translate button: expand nav and focus translate element
+                translateQuick.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    setExpanded(true);
+                    // focus the google translate widget if present
+                    window.setTimeout(function() {
+                        const gt = document.getElementById('google_translate_element');
+                        if (gt) gt.focus();
+                    }, 250);
+                });
+
+                const tablinks = Array.from(sidenav.querySelectorAll('.tablinks[tabindex="0"]')); // Get currently focused tab
+                // The keyboard nav block will reuse the active tabindex logic
+                sidenav.addEventListener('keydown', function(e) {
                     const allTablinks = Array.from(sidenav.querySelectorAll('.tablinks'));
-                    const currentIndex = allTablinks.indexOf(activeTab);
+                    if (allTablinks.length === 0) return;
+                    const activeIndex = allTablinks.findIndex(t => t.getAttribute('tabindex') === '0');
+                    const currentIndex = activeIndex >= 0 ? activeIndex : 0;
                     let nextTabIndex;
 
                     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
@@ -635,20 +753,31 @@
                     }
 
                     if (nextTabIndex !== undefined && nextTabIndex !== currentIndex) {
-                        allTablinks[nextTabIndex].focus(); // Move focus to the next tab
-                        // No need to click, as focus alone should handle the visual indication for screen readers
+                        // move tabindex markers
+                        allTablinks.forEach(t => t.setAttribute('tabindex', '-1'));
+                        allTablinks[nextTabIndex].setAttribute('tabindex', '0');
+                        allTablinks[nextTabIndex].focus();
                     }
                 });
 
+                // Ensure the initial collapsed/expanded state reflects stored preference
+                const prefExpanded = localStorage.getItem('navExpanded') === 'true';
+                if (prefExpanded) setExpanded(true);
+
+                // Update preference when toggled by the button
+                navToggle.addEventListener('click', function() {
+                    const expanded = sidenav.getAttribute('aria-expanded') === 'true';
+                    localStorage.setItem('navExpanded', expanded);
+                });
+
+                // Also update preference on manual expand/collapse
+                sidenav.addEventListener('mouseleave', function() { localStorage.setItem('navExpanded', sidenav.getAttribute('aria-expanded') === 'true'); });
+
                 // Allow keyboard users to open the nav by focusing inside it
-                sidenav.addEventListener('focusin', function() {
-                    // expand is handled by :focus-within in CSS; this is just to ensure visual state for some browsers
-                    sidenav.style.width = '200px';
-                });
-                sidenav.addEventListener('focusout', function() {
-                    // collapse back; CSS will handle but we clear inline width to allow transition
-                    sidenav.style.width = '';
-                });
+                // (focusin handler above already does this)
+
+                // Apply saved theme/font-size was already handled above
+
             });
 
         </script>
