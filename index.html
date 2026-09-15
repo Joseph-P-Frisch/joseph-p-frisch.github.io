@@ -282,6 +282,23 @@
                 margin-top: 10px;
                 margin-bottom: 10px;
             }
+
+            /* Home page image container */
+            .portfolio-image-container {
+                margin: 20px 0;
+                text-align: center;
+                border: 1px solid #ccc;
+                padding: 10px;
+                background-color: #f9f9f9;
+                border-radius: 4px;
+            }
+
+            .portfolio-image-container img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 4px;
+            }
+
             /* Skip to content link */
             .skip-to-content {
                 position: absolute;
@@ -407,11 +424,16 @@
                 <div id="Home" class="tabcontent" role="tabpanel" aria-labelledby="defaultOpen" aria-hidden="false">
                     <h1>Welcome to Joseph Frisch's Portfolio</h1>
                     <p>Here is the skeleton of a webpage used to catalog my professional projects.</p>
+                    
+                    <!-- Empty image container for portfolio image -->
+                    <div class="portfolio-image-container">
+                        <!-- <img src="" alt="Portfolio image"> -->
+                    </div>
                 </div>
 
                 <div id="Projects" class="tabcontent" role="tabpanel" aria-labelledby="projectsTab" aria-hidden="true">
-                    <h2>Here is my first and only website prior to this one</h2>
-                    <p>This is the meat and potatoes of a website I hard-coded for an LLC I co-formed. The objective of this website was to sell hobby trinkets. This code has since been beautified, but functionality remains the same (and the presentation is near identical). This leftovers (Pokemon TM) is from a shopping cart feature of the website. The item is an ETB we obtained through wholesale. Open the console log (F12) to view log events triggered by manipulating the objects on the page. Though this project was scrapped after my departure from the LLC, this code still exist deep within the recesses of my file explorer. This hard-coding project was made possible through many many hours of work. Everything I did I learned from W3 schools, Khan Academy, google searches, and experience throughout the project.</p>
+                    <h2 id="projects">Here is my first and only website prior to this one</h2>
+                    <p>This is the meat and potatoes of a website I hard-coded for an LLC I co-formed. The objective of this website was to sell hobby trinkets. This code has since been beautified, bu[...]
 
                     <input type="number" id="SFETBqty" min="0" aria-label="Quantity for Shining Fates Elite Trainer Box">
                     <button type="button" id="SFETBqtybutton" onclick="addtocart(SFETB.price, SFETB.title, 'SFETBqty')">Add SFETB</button>
@@ -427,7 +449,7 @@
                 </div>
 
                 <div id="Settings" class="tabcontent" role="tabpanel" aria-labelledby="settingsTab" aria-hidden="true">
-                    <h3>Accessibility Settings</h3>
+                    <h3 id="settings">Accessibility Settings</h3>
                     <p>Accessibility controls are available in the navigation menu (hover or focus the menu at the left). They were moved into their own container and stacked under the navigation[...]
                 </div>
 
