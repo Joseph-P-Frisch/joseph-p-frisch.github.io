@@ -433,7 +433,7 @@
 
                 <div id="Projects" class="tabcontent" role="tabpanel" aria-labelledby="projectsTab" aria-hidden="true">
                     <h2 id="projects">Here is my first and only website prior to this one</h2>
-                    <p>This is the meat and potatoes of a website I hard-coded for an LLC I co-formed. The objective of this website was to sell hobby trinkets. This code has since been beautified, bu[...]
+                    <p>This is the meat and potatoes of a website I hard-coded for an LLC I co-formed. The objective of this website was to sell hobby trinkets. This code has since been beautified, but for now is a work in progress. The cart feature and user inventory are functional. Feel free to test it out by adding items to your cart.</p>
 
                     <input type="number" id="SFETBqty" min="0" aria-label="Quantity for Shining Fates Elite Trainer Box">
                     <button type="button" id="SFETBqtybutton" onclick="addtocart(SFETB.price, SFETB.title, 'SFETBqty')">Add SFETB</button>
@@ -450,11 +450,17 @@
 
                 <div id="Settings" class="tabcontent" role="tabpanel" aria-labelledby="settingsTab" aria-hidden="true">
                     <h3 id="settings">Accessibility Settings</h3>
-                    <p>Accessibility controls are available in the navigation menu (hover or focus the menu at the left). They were moved into their own container and stacked under the navigation[...]
+                    <p>Accessibility controls are available in the navigation menu (hover or focus the menu at the left). They were moved into their own container and stacked under the navigation tabs. The available options include:</p>
+                    <ul>
+                        <li><strong>Theme:</strong> Choose from Normal, Protanopia, Deuteranopia, or Tritanopia color schemes optimized for color blindness accessibility.</li>
+                        <li><strong>Font Size:</strong> Adjust the base font size to Small (14px), Medium (16px), or Large (20px) for better readability.</li>
+                        <li><strong>Text-to-Speech:</strong> Read the active tab content or any selected text aloud using your browser's speech synthesis.</li>
+                    </ul>
                 </div>
 
                 <div id="About" class="tabcontent" role="tabpanel" aria-labelledby="aboutTab" aria-hidden="true">
-                    <!-- No content requested -->
+                    <h2>About Joseph Frisch</h2>
+                    <p>Welcome to my portfolio website. This site showcases my web development projects and technical skills. I'm passionate about creating accessible, user-friendly web applications.</p>
                 </div>
             </div>
         </div>
@@ -584,6 +590,11 @@
                 evt.currentTarget.className += " active";
                 evt.currentTarget.setAttribute("aria-selected", "true");
                 evt.currentTarget.setAttribute("tabindex", "0"); // Make active tab focusable
+
+                // Update URL path based on active tab
+                const tabNameLower = tabName.toLowerCase();
+                const newUrl = tabNameLower === 'home' ? window.location.origin + '/' : window.location.origin + '/' + tabNameLower;
+                window.history.pushState({tab: tabName}, tabName, newUrl);
 
                 // Do not toggle nav on tab selection - nav overlays instead of pushing content
             }
@@ -735,9 +746,27 @@
 
             })();
 
+            // Handle browser back/forward to restore correct tab
+            window.addEventListener('popstate', (event) => {
+                if (event.state && event.state.tab) {
+                    document.getElementById(event.state.tab).click();
+                }
+            });
+
             // Set default tab to open on load and apply saved preferences
             document.addEventListener('DOMContentLoaded', (event) => {
-                document.getElementById("defaultOpen").click();
+                // Determine which tab to open based on URL path
+                const pathSegments = window.location.pathname.split('/').filter(segment => segment);
+                let tabToOpen = 'Home';
+                
+                if (pathSegments.length > 0) {
+                    const lastSegment = pathSegments[pathSegments.length - 1];
+                    if (lastSegment === 'projects') tabToOpen = 'Projects';
+                    else if (lastSegment === 'settings') tabToOpen = 'Settings';
+                    else if (lastSegment === 'about') tabToOpen = 'About';
+                }
+
+                document.getElementById(tabToOpen === 'Home' ? 'defaultOpen' : tabToOpen.toLowerCase() + 'Tab').click();
 
                 // Apply saved theme and font size
                 const savedTheme = localStorage.getItem('selectedTheme');
